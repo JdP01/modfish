@@ -34,38 +34,34 @@ fn main() {
         queen:0x1000000000000000
     };
     let black = Side{color: true,pieces: black_board};
-
-    //let q = white.pieces.queen;
-    //let k = white.pieces.king;
-    //let kn = white.pieces.knights;
-    //let b = white.pieces.bishops;
-    //let r = white.pieces.rooks;
-    //let p = white.pieces.pawns;
-
-    //print white chec
-
-    let q = black.pieces.queen;
-    let k = black.pieces.king;
-    let kn = black.pieces.knights;
-    let b = black.pieces.bishops;
-    let r = black.pieces.rooks;
-    let p = black.pieces.pawns;
-
-    println!("{:064b}",p);    
-    println!("{:064b}",q);
-    println!("{:064b}",k);
-    println!("{:064b}",kn);
-    println!("{:064b}",b);
-    println!("{:064b}",r);
-    
-    println!("{:064b}",q | k | kn | b | r | p);
-
- 
-    
-    print_board()
+   
+    print_board(white,black);
 }
 
-fn print_board()-> () {
-    println!("hello");
-    
+fn print_board(white: Side,black: Side)-> () {
+
+    let b_q = black.pieces.queen;
+    let b_k = black.pieces.king;
+    let b_kn = black.pieces.knights;
+    let b_b = black.pieces.bishops;
+    let b_r = black.pieces.rooks;
+    let b_p = black.pieces.pawns;
+
+    let w_q = white.pieces.queen;
+    let w_k = white.pieces.king;
+    let w_kn = white.pieces.knights;
+    let w_b = white.pieces.bishops;
+    let w_r = white.pieces.rooks;
+    let w_p = white.pieces.pawns;
+
+    let white :[u64; 6] = [w_q,w_k,w_kn,w_b,w_r,w_p];
+    let black :[u64; 6] = [b_q,b_k,b_kn,b_b,b_r,b_p];
+
+
+    for i in 0..8{
+        
+        
+        
+        println!("{:08b}",white[i]);
+    }
 }
