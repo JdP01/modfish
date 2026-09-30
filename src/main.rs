@@ -36,8 +36,6 @@ fn main() {
     };
 
     let black = Side{color: true,pieces: black_board};
-   
-
 
     print_board(white,black);
 }
@@ -59,7 +57,14 @@ fn print_board(white: Side,black: Side)-> () {
     let w_p = white.pieces.pawns;
     
 
-    let mut live_board:[char; 64] = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '];
+    let mut live_board:[char; 64] = ['0','0','0','0','0','0','0','0', //empty board char arr rep
+                                     '0','0','0','0','0','0','0','0',
+                                     '0','0','0','0','0','0','0','0',
+                                     '0','0','0','0','0','0','0','0',
+                                     '0','0','0','0','0','0','0','0',
+                                     '0','0','0','0','0','0','0','0',
+                                     '0','0','0','0','0','0','0','0',
+                                     '0','0','0','0','0','0','0','0'];
 
 
     for i in 0..64{ // this masking method works but will not handle if two pieces are ever in the same place (which should not happen if I write the rules correctly)
@@ -83,7 +88,7 @@ fn print_board(white: Side,black: Side)-> () {
 
     for i in (0..64).step_by(8) { 
 
-        println! ("{} {} {} {} {} {} {} {}",live_board[i],live_board[i+1],live_board[i+2],live_board[i+3],live_board[i+4],live_board[i+5],live_board[i+6],live_board[i+7]);   
+        println! (" {} {} {} {} {} {} {} {} ",live_board[i],live_board[i+1],live_board[i+2],live_board[i+3],live_board[i+4],live_board[i+5],live_board[i+6],live_board[i+7]);   
 
     }
 
