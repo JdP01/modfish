@@ -23,6 +23,7 @@ fn main() {
         king:0x8,
         queen:0x10
     };
+    
     let white = Side{color: true,pieces: white_board}; //team color 
 
 
@@ -33,8 +34,11 @@ fn main() {
         king:0x800000000000000,
         queen:0x1000000000000000
     };
+
     let black = Side{color: true,pieces: black_board};
    
+
+
     print_board(white,black);
 }
 
@@ -53,15 +57,35 @@ fn print_board(white: Side,black: Side)-> () {
     let w_b = white.pieces.bishops;
     let w_r = white.pieces.rooks;
     let w_p = white.pieces.pawns;
+    
 
-    let white :[u64; 6] = [w_q,w_k,w_kn,w_b,w_r,w_p];
-    let black :[u64; 6] = [b_q,b_k,b_kn,b_b,b_r,b_p];
+    let mut live_board:[char; 64] = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '];
 
 
-    for i in 0..8{
-        
-        
-        
-        println!("{:08b}",white[i]);
+    for i in 0..64{ // this masking method works but will not handle if two pieces are ever in the same place (which should not happen if I write the rules correctly)
+
+        let mask1 = 1 << i;
+
+        if mask1 & b_q != 0{live_board[i] = '♛' }
+        if mask1 & b_k != 0{live_board[i] = '♚'}
+        if mask1 & b_kn != 0{live_board[i] = '♞'}
+        if mask1 & b_b != 0{live_board[i] = '♝'}
+        if mask1 & b_r != 0{live_board[i] = '♜'}
+        if mask1 & b_p != 0{live_board[i] = '♟'}
+
+        if mask1 & w_q != 0{live_board[i] = '♕'}
+        if mask1 & w_k != 0{live_board[i] = '♔'}
+        if mask1 & w_kn != 0{live_board[i] = '♘'}
+        if mask1 & w_b != 0{live_board[i] = '♗'}
+        if mask1 & w_r != 0{live_board[i] = '♖'}
+        if mask1 & w_p != 0{live_board[i] = '♙'}
     }
+
+    for i in (0..64).step_by(8) { 
+
+        println! ("{} {} {} {} {} {} {} {}",live_board[i],live_board[i+1],live_board[i+2],live_board[i+3],live_board[i+4],live_board[i+5],live_board[i+6],live_board[i+7]);   
+
+    }
+
+
 }
