@@ -75,47 +75,51 @@ fn interpret_move(input_from:String ,input_to: String) -> (String,String){
 
 }
 
-fn game_dialog(color:String)-> (String,String){ 
-        let mut from = String::new();
-        let mut to = String::new();
-        let re = Regex::new(&r"(?i)^[a-h][1-8]$").unwrap();
+fn game_dialog(color:String)-> (String,String){  
 
-        println!("{} to move: ",color);
-        //GET WHITE MOVES INPUT
-        loop {
-            from.clear();
-            print!("from: ");
-            io::stdout().flush().expect("Failed to flush stdout");
-            io::stdin().read_line(&mut from).expect("error: unable to read user input");
-            
-            from = from.trim().to_string(); //remove newline \n 
-            
-            if re.is_match(&from.trim()){ //if regex matches
-                break;
-            }
-            else{ 
-                println!("Invalid position, try again.");
-            }
-        }
+    //currently regex only checks that the square exists
+    //it doesnt check whether we have a valid move from move generation
 
-        loop {
-            to.clear();
-            print!("to: ");
-            io::stdout().flush().expect("Failed to flush stdout");
-            io::stdin().read_line(&mut to).expect("error: unable to read user input");
-            
-            to = to.trim().to_string(); //clean up input, remove \n
-            
-            if to == from{
-                println!("invalid move, you cant go to the same square, from: {}, to: {}",from,to);
-            }
-            else if re.is_match(&to){ //if regex matches
-                break;
-            }
-            else{ 
-                println!("Invalid position, try again.");
-            }
+    let mut from = String::new();
+    let mut to = String::new();
+    let re = Regex::new(&r"(?i)^[a-h][1-8]$").unwrap();
+
+    println!("{} to move: ",color);
+    //GET WHITE MOVES INPUT
+    loop {
+        from.clear();
+        print!("from: ");
+        io::stdout().flush().expect("Failed to flush stdout");
+        io::stdin().read_line(&mut from).expect("error: unable to read user input");
+        
+        from = from.trim().to_string(); //remove newline \n 
+        
+        if re.is_match(&from.trim()){ //if regex matches
+            break;
         }
+        else{ 
+            println!("Invalid position, try again.");
+        }
+    }
+
+    loop {
+        to.clear();
+        print!("to: ");
+        io::stdout().flush().expect("Failed to flush stdout");
+        io::stdin().read_line(&mut to).expect("error: unable to read user input");
+        
+        to = to.trim().to_string(); //clean up input, remove \n
+        
+        if to == from{
+            println!("invalid move, you cant go to the same square, from: {}, to: {}",from,to);
+        }
+        else if re.is_match(&to){ //if regex matches
+            break;
+        }
+        else{ 
+            println!("Invalid position, try again.");
+        }
+    }
     
     return (from,to); 
 }
