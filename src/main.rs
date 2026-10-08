@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+use std::io::{self, Write};
+use regex::Regex;
 
 struct Boards{ 
     pawns: u64,
@@ -7,6 +9,7 @@ struct Boards{
     knights: u64,
     king: u64,
     queen: u64,
+    occupancy: u64,
 }
 
 struct Side{ 
@@ -21,41 +24,103 @@ fn main() {
         bishops:0x42,
         knights:0x24,
         king:0x8,
-        queen:0x10
+        queen:0x10,
+        occupancy:0xFFFF
     };
-    
-    let white = Side{color: true,pieces: white_board}; //team color 
-
-
     let black_board = Boards{pawns:0xFF000000000000, //same for black
         rooks:0x8100000000000000,
         bishops:0x4200000000000000,
         knights:0x2400000000000000,
         king:0x800000000000000,
-        queen:0x1000000000000000
+        queen:0x1000000000000000,
+        occupancy:0xFFFF000000000000
     };
-
+    let white = Side{color: true,pieces: white_board}; //team color 
     let black = Side{color: true,pieces: black_board};
 
-    print_board(white,black);
+    game_loop(white,black);
 }
 
-fn print_board(white: Side,black: Side)-> () {
 
-    let b_q = black.pieces.queen;
-    let b_k = black.pieces.king;
-    let b_kn = black.pieces.knights;
-    let b_b = black.pieces.bishops;
-    let b_r = black.pieces.rooks;
-    let b_p = black.pieces.pawns;
+fn game_loop(white: Side,black: Side){ 
 
-    let w_q = white.pieces.queen;
-    let w_k = white.pieces.king;
-    let w_kn = white.pieces.knights;
-    let w_b = white.pieces.bishops;
-    let w_r = white.pieces.rooks;
-    let w_p = white.pieces.pawns;
+    let done: bool = false;
+
+    while !done{ 
+        let mut from: String; 
+        let mut to: String; 
+
+        //WHITE TURN
+        (from,to) = game_dialog("White".to_string());
+        //USE (from,to) for interpret move and actually execute it for black
+        println!("White from:  {}",from);
+        println!("White to  :  {}",to);
+        print_board(&white,&black);
+
+        //BLACKS TURN
+        (from,to) = game_dialog("Black".to_string());
+        //USE (from,to) for interpret move and actually execute it for black
+        println!("Black from:  {}",from);
+        println!("Black to  :  {}",to);
+
+        print_board(&white,&black);
+
+
+    }
+}
+
+fn interpret_move(input_from:String ,input_to: String) -> (String,String){ 
+
+    return (input_from,input_to);
+
+}
+
+fn game_dialog(color:String)-> (String,String){ 
+        let mut from = String::new();
+        let mut to = String::new();
+        let re = Regex::new(&r"(?i)^[a-h][1-8]$").unwrap();
+
+        println!("{} to move: ",color);
+        //GET WHITE MOVES INPUT
+        loop {
+            from.clear();
+            print!("from: ");
+            io::stdout().flush().expect("Failed to flush stdout");
+            io::stdin().read_line(&mut from).expect("error: unable to read user input");
+            
+            from = from.trim().to_string(); //remove newline \n 
+            
+            if re.is_match(&from.trim()){ //if regex matches
+                break;
+            }
+            else{ 
+                println!("Invalid position, try again.");
+            }
+        }
+
+        loop {
+            to.clear();
+            print!("to: ");
+            io::stdout().flush().expect("Failed to flush stdout");
+            io::stdin().read_line(&mut to).expect("error: unable to read user input");
+            
+            to = to.trim().to_string(); //clean up input, remove \n
+            
+            if to == from{
+                println!("invalid move, you cant go to the same square, from: {}, to: {}",from,to);
+            }
+            else if re.is_match(&to){ //if regex matches
+                break;
+            }
+            else{ 
+                println!("Invalid position, try again.");
+            }
+        }
     
+    return (from,to); 
+}
+
+fn print_board(white: &Side,black: &Side)-> () {
 
     let mut live_board:[char; 64] = ['0','0','0','0','0','0','0','0', //empty board char arr rep
                                      '0','0','0','0','0','0','0','0',
@@ -71,19 +136,19 @@ fn print_board(white: Side,black: Side)-> () {
 
         let mask1 = 1 << i;
 
-        if mask1 & b_q != 0{live_board[i] = '♛' }
-        if mask1 & b_k != 0{live_board[i] = '♚'}
-        if mask1 & b_kn != 0{live_board[i] = '♞'}
-        if mask1 & b_b != 0{live_board[i] = '♝'}
-        if mask1 & b_r != 0{live_board[i] = '♜'}
-        if mask1 & b_p != 0{live_board[i] = '♟'}
+        if mask1 & black.pieces.queen != 0{live_board[i] = '♛' }
+        if mask1 & black.pieces.king != 0{live_board[i] = '♚'}
+        if mask1 & black.pieces.knights != 0{live_board[i] = '♞'}
+        if mask1 & black.pieces.bishops != 0{live_board[i] = '♝'}
+        if mask1 & black.pieces.rooks != 0{live_board[i] = '♜'}
+        if mask1 & black.pieces.pawns != 0{live_board[i] = '♟'}
 
-        if mask1 & w_q != 0{live_board[i] = '♕'}
-        if mask1 & w_k != 0{live_board[i] = '♔'}
-        if mask1 & w_kn != 0{live_board[i] = '♘'}
-        if mask1 & w_b != 0{live_board[i] = '♗'}
-        if mask1 & w_r != 0{live_board[i] = '♖'}
-        if mask1 & w_p != 0{live_board[i] = '♙'}
+        if mask1 & white.pieces.queen != 0{live_board[i] = '♕'}
+        if mask1 & white.pieces.king != 0{live_board[i] = '♔'}
+        if mask1 & white.pieces.knights != 0{live_board[i] = '♘'}
+        if mask1 & white.pieces.bishops != 0{live_board[i] = '♗'}
+        if mask1 & white.pieces.rooks != 0{live_board[i] = '♖'}
+        if mask1 & white.pieces.pawns != 0{live_board[i] = '♙'}
     }
 
     for i in (0..64).step_by(8) { 
