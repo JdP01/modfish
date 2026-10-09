@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use std::io::{self, Write};
+use std::{f32::consts::E, io::{self, Write}};
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -37,14 +37,14 @@ fn main() {
         queen:0x800000000000000,
         occupancy:0xFFFF000000000000
     };
-    let white = Side{color: true,pieces: white_board}; //team color 
-    let black = Side{color: false,pieces: black_board};
+    let mut white: Side = Side{color: true,pieces: white_board}; //team color 
+    let mut black = Side{color: false,pieces: black_board};
 
-    game_loop(white,black);
+    game_loop(&mut white,&mut black);
 }
 
 
-fn game_loop(white: Side,black: Side){ 
+fn game_loop(white: &mut Side,black: &mut Side){ 
 
     let done: bool = false;
 
@@ -60,8 +60,8 @@ fn game_loop(white: Side,black: Side){
 
         //here we have to implement the call that actually moves the pawn 
         let (start_mask,end_mask) = interpret_move(from,to);
-        
 
+        update_board(start_mask,end_mask,white,black);
         print_board(&white,&black);
 
         //BLACKS TURN
@@ -70,12 +70,32 @@ fn game_loop(white: Side,black: Side){
         println!("Black from:  {}",from);
         println!("Black to  :  {}",to);
 
-        print_board(&white,&black);
+        print_board(white,black);
 
 
     }
 }
 
+fn update_board(start_mask: u64,end_mask: u64,white: &mut Side,black:&mut Side) { 
+    
+    //check what our start and end mask interrupt
+    //update the boards where we interrupt 
+
+    //we can start by checking occupancy boards to isolate whether we only change one or both colors
+    if (start_mask | end_mask) & white.pieces.occupancy != 0 && (start_mask | end_mask) & black.pieces.occupancy != 0  { 
+        
+    }
+    else if (start_mask | end_mask) & white.pieces.occupancy != 0 { 
+
+    }
+    else if (start_mask | end_mask) & black.pieces.occupancy != 0 { 
+
+    }
+
+    else { //idk this shouldnt ever happen  
+        println!("You fucked up!");
+    }
+}
 fn interpret_move(input_from:String ,input_to: String) -> (u64,u64){ 
 
 
