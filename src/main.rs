@@ -3,7 +3,6 @@ use std::{f32::consts::E, io::{self, Write}};
 use regex::Regex;
 use std::collections::HashMap;
 
-
 struct Boards{ 
     pawns: u64,
     rooks: u64,
@@ -77,6 +76,10 @@ fn game_loop(white: &mut Side,black: &mut Side){
 }
 
 fn update_board(start_mask: u64,end_mask: u64,white: &mut Side,black:&mut Side) { 
+
+    //what is the scope of this function ? do we wanna do all movements for all pieces here ? 
+        //do we want to check validity of moves here ? very likely not, make a function that generates all valid moves and gives them to us 
+        //
     
     //check what our start and end mask interrupt
     //update the boards where we interrupt 
