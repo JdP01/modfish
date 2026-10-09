@@ -59,6 +59,8 @@ fn game_loop(white: Side,black: Side){
         println!("White to  :  {}",to);
 
         //here we have to implement the call that actually moves the pawn 
+        let (start_mask,end_mask) = interpret_move(from,to);
+        
 
         print_board(&white,&black);
 
@@ -74,13 +76,27 @@ fn game_loop(white: Side,black: Side){
     }
 }
 
-fn interpret_move(input_from:String ,input_to: String) -> (String,String){ 
+fn interpret_move(input_from:String ,input_to: String) -> (u64,u64){ 
 
 
     //array with a = 0, up to H = 7
-    //let letters:[u64;8] = [0x1,0x2,];
+    let file_index:[u64;8] = [0x1,0x2,0x4,0x8,0x10,0x20,0x40,0x80];
+    
+    let starting_bytes = input_from.as_bytes();// Convert input to a byte slice so we can index it instantly
+    let starting_file = (starting_bytes[0] - b'a') as u32; // we subtract the ascii value of 'a' to get a 0 indexed number for the letters between a-h    
+    let starting_rank = (starting_bytes[1] - b'0') as u32; //we subtract the ascii value of '0' toget a 0 indexed number for the values between 0 and 8
 
-    return(input_from,input_to);
+    let ending_bytes = input_to.as_bytes();// Convert input to a byte slice so we can index it instantly
+    let ending_file = (ending_bytes[0] - b'a') as u32; // we subtract the ascii value of 'a' to get a 0 indexed number for the letters between a-h    
+    let ending_rank = (ending_bytes[1] - b'0') as u32; //we subtract the ascii value of '0' toget a 0 indexed number for the values between 0 and 8
+
+
+    //from mask is the starting letter shifted by 8*starting_rank
+    let from_mask: u64 = file_index[starting_file as usize] << starting_rank;    
+    let to_mask: u64 = file_index[ending_file as usize] << ending_rank; 
+
+
+    return (from_mask,to_mask);
 }
 
 fn game_dialog(color:String)-> (String,String){  
