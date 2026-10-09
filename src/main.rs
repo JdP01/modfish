@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 use std::io::{self, Write};
 use regex::Regex;
+use std::collections::HashMap;
+
 
 struct Boards{ 
     pawns: u64,
@@ -21,22 +23,22 @@ fn main() {
     
     let white_board = Boards{pawns:0xFF00, //board starting positions for white
         rooks:0x81,
-        bishops:0x42,
-        knights:0x24,
-        king:0x8,
-        queen:0x10,
+        bishops:0x24,
+        knights:0x42,
+        king:0x10,
+        queen:0x8,
         occupancy:0xFFFF
     };
     let black_board = Boards{pawns:0xFF000000000000, //same for black
         rooks:0x8100000000000000,
-        bishops:0x4200000000000000,
-        knights:0x2400000000000000,
-        king:0x800000000000000,
-        queen:0x1000000000000000,
+        bishops:0x2400000000000000,
+        knights:0x4200000000000000,
+        king:0x1000000000000000,
+        queen:0x800000000000000,
         occupancy:0xFFFF000000000000
     };
     let white = Side{color: true,pieces: white_board}; //team color 
-    let black = Side{color: true,pieces: black_board};
+    let black = Side{color: false,pieces: black_board};
 
     game_loop(white,black);
 }
@@ -55,6 +57,9 @@ fn game_loop(white: Side,black: Side){
         //USE (from,to) for interpret move and actually execute it for black
         println!("White from:  {}",from);
         println!("White to  :  {}",to);
+
+        //here we have to implement the call that actually moves the pawn 
+
         print_board(&white,&black);
 
         //BLACKS TURN
@@ -71,8 +76,11 @@ fn game_loop(white: Side,black: Side){
 
 fn interpret_move(input_from:String ,input_to: String) -> (String,String){ 
 
-    return (input_from,input_to);
 
+    //array with a = 0, up to H = 7
+    //let letters:[u64;8] = [0x1,0x2,];
+
+    return(input_from,input_to);
 }
 
 fn game_dialog(color:String)-> (String,String){  
@@ -85,7 +93,9 @@ fn game_dialog(color:String)-> (String,String){
     let re = Regex::new(&r"(?i)^[a-h][1-8]$").unwrap();
 
     println!("{} to move: ",color);
+
     //GET WHITE MOVES INPUT
+    //loop isn't expected to run more than once its just to only get valid inputs 
     loop {
         from.clear();
         print!("from: ");
@@ -138,7 +148,7 @@ fn print_board(white: &Side,black: &Side)-> () {
 
     for i in 0..64{ // this masking method works but will not handle if two pieces are ever in the same place (which should not happen if I write the rules correctly)
 
-        let mask1 = 1 << i;
+        let mask1 = 0x8000000000000000 >> i;
 
         if mask1 & black.pieces.queen != 0{live_board[i] = '♛' }
         if mask1 & black.pieces.king != 0{live_board[i] = '♚'}
@@ -155,11 +165,10 @@ fn print_board(white: &Side,black: &Side)-> () {
         if mask1 & white.pieces.pawns != 0{live_board[i] = '♙'}
     }
 
-    for i in (0..64).step_by(8) { 
+    for i in (0..64).step_by(8) { //prints it "backwards" or upsidedown or whatever since terminal prints from top to bottom
 
-        println! (" {} {} {} {} {} {} {} {} ",live_board[i],live_board[i+1],live_board[i+2],live_board[i+3],live_board[i+4],live_board[i+5],live_board[i+6],live_board[i+7]);   
+        println! (" {} {} {} {} {} {} {} {} ",live_board[i+7],live_board[i+6],live_board[i+5],live_board[i+4],live_board[i+3],live_board[i+2],live_board[i+1],live_board[i]);   
 
     }
-
 
 }
