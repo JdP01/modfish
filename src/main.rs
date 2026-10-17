@@ -58,7 +58,11 @@ fn game_loop(white: &mut Side,black: &mut Side){
         println!("White to  :  {}",to);
 
         //here we have to implement the call that actually moves the pawn 
-        let (start_mask,end_mask) = interpret_move(from,to);
+        let (mut start_mask,mut end_mask) = get_from_to_masks(from,to);
+
+        //printed masks to make sure func works
+        //println!("{:064b}",start_mask);
+        //println!("{:064b}",end_mask);
 
         update_board(start_mask,end_mask,white,black);
         print_board(&white,&black);
@@ -68,7 +72,8 @@ fn game_loop(white: &mut Side,black: &mut Side){
         //USE (from,to) for interpret move and actually execute it for black
         println!("Black from:  {}",from);
         println!("Black to  :  {}",to);
-
+        (start_mask,end_mask) = get_from_to_masks(from,to);
+        update_board(start_mask,end_mask,white,black);
         print_board(white,black);
 
 
@@ -82,42 +87,60 @@ fn update_board(start_mask: u64,end_mask: u64,white: &mut Side,black:&mut Side) 
         //
     
     //check what our start and end mask interrupt
-    //update the boards where we interrupt 
+    //update the boards where we interrupt
 
     //we can start by checking occupancy boards to isolate whether we only change one or both colors
-    if (start_mask | end_mask) & white.pieces.occupancy != 0 && (start_mask | end_mask) & black.pieces.occupancy != 0  { 
+    let move_mask = start_mask|end_mask;
+
+    //if both are affected
+    if move_mask & white.pieces.occupancy != 0 && move_mask & black.pieces.occupancy != 0  { 
         
     }
-    else if (start_mask | end_mask) & white.pieces.occupancy != 0 { 
 
+    //if only white mask is affected
+    else if move_mask & white.pieces.occupancy != 0 { 
+
+        white.pieces.occupancy ^= move_mask;
+
+        white.pieces.pawns ^= move_mask;
     }
-    else if (start_mask | end_mask) & black.pieces.occupancy != 0 { 
+
+    //if only black mask is affected
+    else if move_mask & black.pieces.occupancy != 0 { 
+
+        black.pieces.pawns ^= move_mask;
+        black.pieces.rooks ^= move_mask;
+        black.pieces.bishops ^= move_mask;
+        black.pieces.knights ^= move_mask;
+        black.pieces.king ^= move_mask;
+        black.pieces.queen ^= move_mask;
 
     }
 
     else { //idk this shouldnt ever happen  
-        println!("You fucked up!");
+        println!("You fucked up bad");
     }
 }
-fn interpret_move(input_from:String ,input_to: String) -> (u64,u64){ 
-
+fn get_from_to_masks(input_from:String ,input_to: String) -> (u64,u64){ 
 
     //array with a = 0, up to H = 7
     let file_index:[u64;8] = [0x1,0x2,0x4,0x8,0x10,0x20,0x40,0x80];
     
+    //byte conversion for From move    
     let starting_bytes = input_from.as_bytes();// Convert input to a byte slice so we can index it instantly
+    
     let starting_file = (starting_bytes[0] - b'a') as u32; // we subtract the ascii value of 'a' to get a 0 indexed number for the letters between a-h    
     let starting_rank = (starting_bytes[1] - b'0') as u32; //we subtract the ascii value of '0' toget a 0 indexed number for the values between 0 and 8
 
+    //byte conversion for To move
     let ending_bytes = input_to.as_bytes();// Convert input to a byte slice so we can index it instantly
+    
     let ending_file = (ending_bytes[0] - b'a') as u32; // we subtract the ascii value of 'a' to get a 0 indexed number for the letters between a-h    
     let ending_rank = (ending_bytes[1] - b'0') as u32; //we subtract the ascii value of '0' toget a 0 indexed number for the values between 0 and 8
 
-
     //from mask is the starting letter shifted by 8*starting_rank
-    let from_mask: u64 = file_index[starting_file as usize] << starting_rank;    
-    let to_mask: u64 = file_index[ending_file as usize] << ending_rank; 
-
+    let from_mask: u64 = file_index[starting_file as usize] << (8*(starting_rank-1));
+    let to_mask: u64 = file_index[ending_file as usize] << (8*(ending_rank-1));
 
     return (from_mask,to_mask);
 }
@@ -175,14 +198,14 @@ fn game_dialog(color:String)-> (String,String){
 
 fn print_board(white: &Side,black: &Side)-> () {
 
-    let mut live_board:[char; 64] = ['0','0','0','0','0','0','0','0', //empty board char arr rep
-                                     '0','0','0','0','0','0','0','0',
-                                     '0','0','0','0','0','0','0','0',
-                                     '0','0','0','0','0','0','0','0',
-                                     '0','0','0','0','0','0','0','0',
-                                     '0','0','0','0','0','0','0','0',
-                                     '0','0','0','0','0','0','0','0',
-                                     '0','0','0','0','0','0','0','0'];
+    let mut live_board:[char; 64] = ['.','.','.','.','.','.','.','.', //empty board char arr rep
+                                     '.','.','.','.','.','.','.','.',
+                                     '.','.','.','.','.','.','.','.',
+                                     '.','.','.','.','.','.','.','.',
+                                     '.','.','.','.','.','.','.','.',
+                                     '.','.','.','.','.','.','.','.',
+                                     '.','.','.','.','.','.','.','.',
+                                     '.','.','.','.','.','.','.','.'];
 
 
     for i in 0..64{ // this masking method works but will not handle if two pieces are ever in the same place (which should not happen if I write the rules correctly)
