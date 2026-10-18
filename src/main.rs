@@ -45,25 +45,19 @@ fn main() {
 
 fn game_loop(white: &mut Side,black: &mut Side){ 
 
-    let done: bool = false;
-
-    while !done{ 
+    loop {
         let mut from: String; 
         let mut to: String; 
 
         //WHITE TURN
         (from,to) = game_dialog("White".to_string());
         //USE (from,to) for interpret move and actually execute it for black
+        
         println!("White from:  {}",from);
         println!("White to  :  {}",to);
 
         //here we have to implement the call that actually moves the pawn 
         let (mut start_mask,mut end_mask) = get_from_to_masks(from,to);
-
-        //printed masks to make sure func works
-        //println!("{:064b}",start_mask);
-        //println!("{:064b}",end_mask);
-
         update_board(start_mask,end_mask,white,black);
         print_board(&white,&black);
 
@@ -72,11 +66,13 @@ fn game_loop(white: &mut Side,black: &mut Side){
         //USE (from,to) for interpret move and actually execute it for black
         println!("Black from:  {}",from);
         println!("Black to  :  {}",to);
+
+
         (start_mask,end_mask) = get_from_to_masks(from,to);
         update_board(start_mask,end_mask,white,black);
         print_board(white,black);
-
-
+        
+        //if game end exit
     }
 }
 
@@ -84,8 +80,9 @@ fn update_board(start_mask: u64,end_mask: u64,white: &mut Side,black:&mut Side) 
 
     //what is the scope of this function ? do we wanna do all movements for all pieces here ? 
         //do we want to check validity of moves here ? very likely not, make a function that generates all valid moves and gives them to us 
-        //
-    
+
+    let (white_pawn_move_mask,black_pawn_move_mask) = pawn_valid_moves(white,black);
+
     //check what our start and end mask interrupt
     //update the boards where we interrupt
 
@@ -94,27 +91,34 @@ fn update_board(start_mask: u64,end_mask: u64,white: &mut Side,black:&mut Side) 
 
     //if both are affected
     if move_mask & white.pieces.occupancy != 0 && move_mask & black.pieces.occupancy != 0  { 
-        
+
+        //means piece took
     }
 
-    //if only white mask is affected
+    //if only white quiet move
     else if move_mask & white.pieces.occupancy != 0 { 
 
-        white.pieces.occupancy ^= move_mask;
+        if (white.pieces.pawns & move_mask) != 0 {move_pawn();}
+        if (white.pieces.rooks & move_mask) != 0 {move_rook();}
+        if (white.pieces.bishops & move_mask) != 0 {move_bishop();}
+        if (white.pieces.knights & move_mask) != 0 {move_knight();}
+        if (white.pieces.king & move_mask) != 0 {move_king();}
+        if (white.pieces.queen & move_mask) != 0 {move_queen();} 
+        
 
-        white.pieces.pawns ^= move_mask;
+
     }
 
-    //if only black mask is affected
+    //if only black quiet move
     else if move_mask & black.pieces.occupancy != 0 { 
 
-        black.pieces.pawns ^= move_mask;
-        black.pieces.rooks ^= move_mask;
-        black.pieces.bishops ^= move_mask;
-        black.pieces.knights ^= move_mask;
-        black.pieces.king ^= move_mask;
-        black.pieces.queen ^= move_mask;
-
+        if (black.pieces.pawns & move_mask) != 0 {move_pawn();}
+        if (black.pieces.rooks & move_mask) != 0 {move_rook();}
+        if (black.pieces.bishops & move_mask) != 0 {move_bishop();}
+        if (black.pieces.knights & move_mask) != 0 {move_knight();}
+        if (black.pieces.king & move_mask) != 0 {move_king();}
+        if (black.pieces.queen & move_mask) != 0 {move_queen();} 
+        
     }
 
     else { //idk this shouldnt ever happen  
